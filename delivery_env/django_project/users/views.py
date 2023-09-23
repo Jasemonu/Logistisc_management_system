@@ -1,6 +1,6 @@
-from django.shortcuts import render
-from djando.contrib import messages
-from django.auth import authenticate, login, logout
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from .form import RegisterUserForm
 from .models import User
 
@@ -8,7 +8,7 @@ from .models import User
 def register_sender(request):
     if request.method == 'POST':
         form = RegisterUserForm(request.POST)
-        if form is_valid():
+        if form.is_valid():
             var = form.save(commit=False)
             var.sender = True
             var.save()
@@ -16,18 +16,18 @@ def register_sender(request):
             return redirect('login')
         else:
             messages.warning(request, 'Something went wrong. Please check form input')
-            return redirect('register_sender')
+            return redirect('login')
     else:
         form = RegisterUserForm()
-        context = 'form':form)
-        return render(request, 'user/regiister_sender.html', context)
+        context = {'form':form}
+        return render(request, 'users/register_sender.html', context)
 
 
 
 def register_rider(request):
     if request.method == 'POST':
         form = RegisterUserForm(request.POST)
-        if form is_valid():
+        if form.is_valid():
             var = form.save(commit=False)
             var.rider = True
             var.save()
@@ -38,8 +38,8 @@ def register_rider(request):
             return redirect('register_rider')
     else:
         form = RegisterUserForm()
-        context = 'form':form)
-        return render(request, 'user/regiister_rider.html', context)
+        context = {'form':form}
+        return render(request, 'users/register_rider.html', context)
 
 
 def login_user(request):
@@ -49,13 +49,13 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None and user.is_active:
             login(request, user)
-            messages.success(request, f'You are logged as {user}')
+            messages.success(request, f'You are logged as {user.username}')
             return redirect('dashboard')
         else:
             messages.warning(request, 'something went wrong. Invalid credentials')
             return redirect('login')
     else:
-        return render(request, 'user/login.html')
+        return render(request, 'users/login.html')
 
 
 def logout_user(request):
